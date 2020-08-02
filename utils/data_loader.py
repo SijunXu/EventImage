@@ -82,7 +82,7 @@ class J2Dataset(data.Dataset):
     def __len__(self):
         return len(self.X)
 
-def get_data_jetfw(sig, bg, sigfw, bgfw, batch_size, test_size=0.2, use_gpu=True):
+def get_data_J2(sig, bg, sigfw, bgfw, batch_size, test_size=0.2, use_gpu=True):
     target_sig = np.ones((len(sig), 1), dtype=np.float32)
     target_bg = np.zeros((len(bg), 1), dtype=np.float32)
     X = np.concatenate((sig, bg), axis=0)

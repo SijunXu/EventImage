@@ -65,6 +65,39 @@ def get_data(sig, bg, r, c, batch_size, test_size=0.2, use_gpu=True):
     }
     return loaders
 
+class J2Dataset(data.Dataset):
 
+    def __init__(self, X, FW, target):
 
+        self.X = torch.from_numpy(X).float()
+        self.FW = torch.from_numpy(FW).float()
+        self.target = torch.from_numpy(target)#.long()
 
+    def __getitem__(self, index):
+        x = self.X[index]
+        fw = self.FW[index]
+        y = self.target[index]
+        return x, fw, y
+
+    def __len__(self):
+        return len(self.X)
+
+def get_data_jetfw(sig, bg, sigfw, bgfw, batch_size, test_size=0.2, use_gpu=True):
+    target_sig = np.ones((len(sig), 1), dtype=np.float32)
+    target_bg = np.zeros((len(bg), 1), dtype=np.float32)
+    X = np.concatenate((sig, bg), axis=0)
+    fw = np.concatenate((sigfw, bgfw), axis=0)
+    target = np.concatenate((target_sig, target_bg), axis=0)
+    idx = np.arange(len(X))
+    np.random.shuffle(idx)
+    X, fw, target = X[idx], fw[idx], target[idx]
+    X_train, X_test, fw_train, fw_test, target_train, target_test = train_test_split(X, fw, target, test_size=test_size)
+    del X, fw
+    trainset = J2Dataset(X_train, fw_train, target_train)
+    testset = J2Dataset(X_test, fw_test, target_test)
+
+    pin_memory = True if use_gpu else False
+    loaders = {'train': data.DataLoader(trainset, batch_size=batch_size, shuffle=False, pin_memory=pin_memory, num_workers=6),
+               'val': data.DataLoader(testset, batch_size=batch_size, shuffle=False, pin_memory=pin_memory, num_workers=6)}
+
+    return loaders    

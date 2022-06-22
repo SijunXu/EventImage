@@ -1,5 +1,5 @@
 uproot_methods==0.7.3
 awkward==0.12.20
 torch==1.5.1
-numpy==1.17.2
+numpy==1.22.0
 scikit_learn==0.23.1
